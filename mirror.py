@@ -80,13 +80,11 @@ class Assets(HTMLParser):
 
 
 def rewrite(text, is_html=False):
-    # Keep real commerce flows pointed at the live WooCommerce site.
-    protected = {}
     if is_html:
-        for url in re.findall(r'https?://astrowallclocks\.com/[^\s"\'<>]*add-to-cart[^\s"\'<>]*', text):
-            token = f"__LIVE_CART_LINK_{len(protected)}__"
-            protected[token] = url
-            text = text.replace(url, token)
+        text = text.replace(
+            'href="https://astrowallclocks.com/product/astro-wall-clock/?add-to-cart=516"',
+            'href="/product/astro-wall-clock/"',
+        )
     text = text.replace("https://astrowallclocks.com/", "/")
     text = text.replace("http://astrowallclocks.com/", "/")
     if is_html:
@@ -108,8 +106,6 @@ def rewrite(text, is_html=False):
     for host in ASSET_HOSTS - {"astrowallclocks.com"}:
         text = text.replace(f"https://{host}/", f"/external/{host}/")
         text = text.replace(f"http://{host}/", f"/external/{host}/")
-    for token, url in protected.items():
-        text = text.replace(token, url)
     return text
 
 
@@ -181,7 +177,7 @@ def main():
         "# Astro Wall Clocks static HTML copy\n\n"
         "Run `python3 -m http.server 8000` from this folder and open http://localhost:8000/.\n\n"
         "This is a snapshot of public pages. WooCommerce cart, checkout, account, forms, and WordPress editing "
-        "require the live site. The Buy Now add-to-cart URL remains pointed at the live site. "
+        "require the live site. Buy Now opens the static product page. "
         "The local Home page restores the original light Order Now background and struck-through ₹9,999. "
         "Three testimonial avatars unavailable from an old external domain use neutral local placeholders.\n",
         encoding="utf-8",
