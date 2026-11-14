@@ -1,4 +1,4 @@
-# Astro Wall Clocks HTML snapshot
+# Astro Wall Clocks
 
 This repository builds and publishes a static copy of the public pages at
 `https://astrowallclocks.com/` to GitHub Pages. The build runs on every push to
