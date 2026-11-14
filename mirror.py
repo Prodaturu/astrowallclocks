@@ -102,10 +102,6 @@ def rewrite(text, is_html=False):
         text = text.replace(f"http://{host}/", f"/external/{host}/")
     for token, url in protected.items():
         text = text.replace(token, url)
-    if is_html:
-        for path in ("cart/", "checkout/", "my-account/", "track-order/"):
-            for quote in ('"', "'"):
-                text = text.replace(f"href={quote}/{path}{quote}", f"href={quote}{SITE}/{path}{quote}")
     return text
 
 
