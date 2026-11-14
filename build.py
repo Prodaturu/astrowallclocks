@@ -2,12 +2,14 @@
 
 from pathlib import Path
 import re
+import shutil
 
 import mirror
 
 
 HERE = Path(__file__).resolve().parent
 DIST = HERE / "dist"
+SITE = HERE / "site"
 PREFIX = "/astrowallclocks"
 
 
@@ -26,6 +28,11 @@ def main():
     DIST.mkdir(parents=True, exist_ok=True)
     mirror.ROOT = DIST
     mirror.main()
+    for source in SITE.rglob("*"):
+        if source.is_file():
+            target = DIST / source.relative_to(SITE)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
     for file in DIST.rglob("*"):
         if file.is_file() and file.suffix.lower() in {".html", ".css"}:
             file.write_text(add_pages_prefix(file.read_text(encoding="utf-8")), encoding="utf-8")
