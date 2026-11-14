@@ -89,6 +89,14 @@ def rewrite(text, is_html=False):
             text = text.replace(url, token)
     text = text.replace("https://astrowallclocks.com/", "/")
     text = text.replace("http://astrowallclocks.com/", "/")
+    if is_html:
+        text = text.replace('href="https://astrowallclocks.com"', 'href="/"')
+        text = text.replace("href='https://astrowallclocks.com'", "href='/'")
+        for path in ("product-category/astro-wall-clock/", "product-tag/astro-clocks/"):
+            text = text.replace(f'href="/{path}"', 'href="/shop/"')
+        for path in ("category/uncategorized/", "author/admin/", "2025/10/"):
+            text = text.replace(f'href="/{path}"', 'href="/blog/"')
+        text = text.replace('href="/my-account/lost-password/"', f'href="{SITE}/my-account/lost-password/"')
     for source, replacement in {
         "9.png": "/assets/anuradha.svg",
         "47.png": "/assets/suresh.svg",
