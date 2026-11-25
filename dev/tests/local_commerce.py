@@ -89,7 +89,8 @@ def main(place_order):
     ''')
     assert state["site"] == BASE and state["db"] == "astrowallclocks_test"
     assert state["hpos"] and state["cod"] == "yes" and state["mail_guard"]
-    assert state["enabled_gateways"] == ["cod"]
+    assert "cod" in state["enabled_gateways"]
+    assert set(state["enabled_gateways"]).issubset({"cod", "payeasebuzz"})
     assert state["id"] and state["stock"] >= 2
 
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
@@ -124,6 +125,7 @@ def main(place_order):
     assert cart_data(opener)["items_count"] == 1
     home = request(opener, "/")[1]
     assert re.search(r'<b class="cart-count" aria-hidden="true">1</b>', home)
+    assert '<a href="http://127.0.0.1:8088/my-account/">My Account</a>' in home
 
     cart_html = request(opener, "/cart/")[1]
     qty_field = re.search(r'name="(cart\[[^\"]+\]\[qty\])"', cart_html)

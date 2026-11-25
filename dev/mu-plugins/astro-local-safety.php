@@ -12,6 +12,11 @@ add_filter('pre_wp_mail', '__return_true', 1);
 
 // No payment or shipping service should receive a request during local tests.
 add_filter('pre_http_request', function ($preempt, $args, $url) {
+    // A test may supply a complete in-process response at an earlier priority.
+    // Such a response never opens a network connection.
+    if ($preempt !== false) {
+        return $preempt;
+    }
     $host = strtolower((string) wp_parse_url($url, PHP_URL_HOST));
     foreach (['easebuzz', 'razorpay', 'shiprocket'] as $provider) {
         if ($host === $provider . '.in' || str_ends_with($host, '.' . $provider . '.in')

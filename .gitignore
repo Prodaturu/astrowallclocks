@@ -3,4 +3,5 @@ dev/.env
 dev/.admin-password
 dev/public-assets/
 __pycache__/
+dev/easebuzz/.build/
 .DS_Store

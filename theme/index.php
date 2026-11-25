@@ -22,7 +22,7 @@ $design_pages = [
 ];
 
 $slug = get_post_field('post_name', get_queried_object_id());
-$path = is_front_page() ? 'index.html' : ($design_pages[$slug] ?? null);
+$path = is_front_page() ? 'index.html' : ((function_exists('is_shop') && is_shop()) ? 'shop/index.html' : ($design_pages[$slug] ?? null));
 $product = function_exists('is_product') && is_product() ? wc_get_product(get_queried_object_id()) : null;
 if ($product) {
     $path = 'product/astro-wall-clock/index.html';

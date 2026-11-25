@@ -13,6 +13,7 @@ update_option('woocommerce_default_country', 'IN:TS');
 update_option('woocommerce_manage_stock', 'yes');
 update_option('woocommerce_enable_shipping', 'yes');
 update_option('blog_public', '0');
+update_option('woocommerce_coming_soon', 'no');
 
 foreach ([
     'shop' => ['Shop', '', 'woocommerce_shop_page_id'],

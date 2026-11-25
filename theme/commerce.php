@@ -85,6 +85,9 @@ function astro_design_html(string $html, string $page, ?WC_Product $product = nu
     $html = str_replace('View demo cart', 'View cart', $html);
     $html = str_replace('<b class="cart-count" aria-hidden="true">0</b>', '<b class="cart-count" aria-hidden="true">' . (int) $cart_count . '</b>', $html);
     $html = str_replace('Free shipping across India', 'Shipping calculated at checkout', $html);
+    if (function_exists('wc_get_page_permalink')) {
+        $html = str_replace('<a href="/track-order/">Track Order</a>', '<a href="/track-order/">Track Order</a><a href="' . esc_url(wc_get_page_permalink('myaccount')) . '">My Account</a>', $html);
+    }
     $cod = function_exists('WC') ? (WC()->payment_gateways()->payment_gateways()['cod'] ?? null) : null;
     if (!$cod || $cod->enabled !== 'yes') {
         $html = str_replace(' · COD available', '', $html);
