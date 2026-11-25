@@ -1,0 +1,9 @@
+# Isolated Easebuzz staging
+
+Staging uses the production account's existing GoDaddy hosting but a separate WordPress document root and MySQL database. The reviewed Easebuzz 5.8.0 package is active only here, configured with generated dummy values in test mode. The staging must-use safety plugin suppresses mail and blocks Razorpay, Shiprocket, and both live and sandbox Easebuzz HTTP destinations. No real payment or shipment request can be made by the installed gateway while this guard remains active.
+
+The two POST-only exceptions in `callback-access.conf` sit inside staging's existing Basic-auth `<RequireAny>`. They allow the direct webhook and exact root `wc-api` callback across WordPress internal rewrites. Other methods, pages, REST routes, and admin AJAX remain authenticated. The gateway checks the response hash, order gateway, merchant key, order ID and key, amount, and current transaction ID before changing an order. Paid and refunded orders ignore replayed callbacks.
+
+Run `test_gateway.php` with staging WP-CLI to create synthetic HPOS orders and send signed HTTPS callbacks to this same staging host. Run `test_protected_pages.sh` on the staging host to create a temporary Basic-auth user, check the protected storefront and classic checkout, and remove that user. The scripts refuse the production database. Do not put live credentials in these scripts or this repository.
+
+Before any controlled live-payment test, obtain explicit owner approval for a real charge and possible fees, confirm Easebuzz permits the staging callback domain, record a staging backup, and agree on the test amount and refund method. Enter live credentials only in staging administration, temporarily allow only the required Easebuzz live host, verify one synthetic order and refund, then restore the dummy configuration and outbound block. Production Razorpay and checkout remain unchanged until a separately approved cutover.

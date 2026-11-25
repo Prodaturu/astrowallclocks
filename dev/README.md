@@ -13,7 +13,7 @@ Requirements: a running Docker-compatible engine and Docker Compose. Colima with
 7. Run `python3 copy-design-assets.py` to copy only public images referenced by the frontend into local WordPress. This reads public image URLs but does not read records or change production.
 8. Open `http://127.0.0.1:8088`. Use only test products and synthetic customer/order data. Run `python3 tests/local_commerce.py` from `dev/` for product/cart checks; pass `--place-order` only when you intend to create another synthetic local COD order.
 
-The theme preserves the existing frontend design while its product title, price, description, stock, images, and shop cards come from WooCommerce. It disables the static demo cart. WooCommerce handles cart quantities, shipping totals, classic checkout, COD, and HPOS orders. The local test shipping rate is ₹100. Easebuzz 5.8.0 is installed locally with a reviewed hardening patch and synthetic test values. Its payment initiation is mocked; no payment or shipment API is contacted. A local-only must-use plugin suppresses outgoing mail and blocks requests to Easebuzz, Razorpay, and Shiprocket domains. Keep actual sandbox credentials only in the isolated staging administration when gateway testing is approved; never place them in this repository.
+The theme preserves the existing frontend design while its product title, price, description, stock, images, and shop cards come from WooCommerce. It disables the static demo cart. WooCommerce handles cart quantities, shipping totals, classic checkout, COD, and HPOS orders. The local test shipping rate is ₹100. Easebuzz 5.8.0 is installed locally with a reviewed hardening patch and synthetic test values. Its payment initiation is mocked; no payment or shipment API is contacted. A local-only must-use plugin suppresses outgoing mail and blocks requests to Easebuzz, Razorpay, and Shiprocket domains. No sandbox credentials are available; never place live credentials in this repository.
 
 Easebuzz local regression tests:
 
@@ -25,7 +25,7 @@ python3 dev/easebuzz/test_webhook.py
 
 `dev/easebuzz/harden_plugin.py` verifies exact official 5.8.0 source hashes before patching. Its output is a local build artifact. The official ZIP and the patched build are not committed; review and rerun the patch if Easebuzz updates its plugin.
 
-To prepare a staging candidate without deploying or enabling it, download the official 5.8.0 plugin ZIP from [Easebuzz's repository](https://github.com/easebuzz/paywitheasebuzz-wordpress-woocommerce-lib), then run `python3 dev/easebuzz/build_package.py /path/to/woocommerce_easebuzz_plugin.zip`. The script checks the pinned ZIP SHA-256 and writes a Git-ignored package under `dev/easebuzz/.build/`. Staging activation and separate sandbox credentials require owner approval.
+To rebuild the staging candidate, download the official 5.8.0 plugin ZIP from [Easebuzz's repository](https://github.com/easebuzz/paywitheasebuzz-wordpress-woocommerce-lib), then run `python3 dev/easebuzz/build_package.py /path/to/woocommerce_easebuzz_plugin.zip`. The script checks the pinned ZIP SHA-256 and writes a Git-ignored package under `dev/easebuzz/.build/`. Staging currently runs this package with dummy values and outbound payment requests blocked; see [staging setup](staging/README.md).
 
 For this existing local instance, the local administrator password is stored in the Git-ignored `dev/.admin-password` file with owner-only permissions. The database passwords are in the Git-ignored `dev/.env` file. Do not reuse these values elsewhere.
 

@@ -48,6 +48,16 @@ def state(order_id):
     ''')
 
 
+def mark_refunded(order_id):
+    return wp(f'''
+        if (DB_NAME !== "astrowallclocks_test") throw new RuntimeException("Not local");
+        $o = wc_get_order({int(order_id)});
+        $o->set_status("refunded");
+        $o->save();
+        echo "DATA=" . wp_json_encode(["status"=>$o->get_status()]) . PHP_EOL;
+    ''')
+
+
 def payload(order, status):
     return {"key": KEY, "txnid": order["txnid"], "amount": order["amount"],
             "firstname": "Synthetic", "email": "webhook-local@example.test",
@@ -89,6 +99,9 @@ def main():
     assert send(valid) == 200 and state(order["id"])["paid"]
     assert send(sign(payload(order, "failed"))) == 200 and state(order["id"])["paid"]
     print("PASS duplicate success and late failure leave paid order intact")
+    assert mark_refunded(order["id"])["status"] == "refunded"
+    assert send(valid) == 200 and state(order["id"])["status"] == "refunded"
+    print("PASS success replay cannot re-pay a refunded order")
     for status, expected in [("failed", "failed"), ("usercancelled", "cancelled"), ("pending", "pending")]:
         other = make_order()
         assert send(sign(payload(other, status))) == 200

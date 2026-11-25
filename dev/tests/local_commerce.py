@@ -103,6 +103,8 @@ def main(place_order):
         assert "9,999" not in decoded, path
         assert "demo cart" not in decoded.lower(), path
     assert "Astro Wall Clock LOCAL TEST" in html.unescape(request(opener, "/shop/")[1])
+    assert "THE COLLECTION" in request(opener, "/shop/")[1]
+    assert "product-gallery" in request(opener, "/product/astro-wall-clock/")[1]
 
     # Prove the design reads current WooCommerce values instead of the static snapshot.
     dynamic_name = "Astro Dynamic Test Clock"
