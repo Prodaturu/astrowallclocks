@@ -32,6 +32,7 @@ services:
       - local_wp:/var/www/html
       - ../theme:/var/www/html/wp-content/themes/astro-rebuild
       - ../site:/var/www/html/wp-content/themes/astro-rebuild/design:ro
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
 
   cli:
     image: wordpress:cli-php8.2
