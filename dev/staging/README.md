@@ -24,6 +24,12 @@ The callback POST exceptions remain limited to the direct Easebuzz webhook and e
 
 ## Pre-production parity update
 
+The owner-approved five-minute staging recovery cron is installed. The runner
+invokes `/usr/local/bin/php /usr/bin/wp` explicitly because cron's minimal PATH
+otherwise selects CGI PHP and fails the isolation preflight. The previous
+crontab and runner are backed up privately under `.astro-stage-deploy`.
+Earlier statements that scheduling awaits approval describe the prior state.
+
 The current staging checkout mirrors production's India-only shipping scope, disabled coupons, account creation during checkout, five 18% GST rules, and the featured clock's non-taxable setting. The isolated flat-rate fallback is ₹40, matching the non-secret Shiprocket fallback setting; it does not reproduce live courier quotes. Shiprocket 2.0.9 is active without production credentials and its API remains blocked. Razorpay 4.8.10 code is present but inactive because its activation hook makes a direct telemetry call outside the WordPress HTTP guard. PHP web 8.2.36, WordPress 7.1.5, WooCommerce 11.3.1, and HPOS match production. Staging uses the approved theme and classic checkout; production's old theme and block checkout remain unchanged.
 
 The staging-only recovery runner logs only a UTC timestamp and generic result to private `recovery-health.log` (mode 600). A synthetic due event was processed manually. The account still has **zero cron entries**; do not add one before approval. The revised safety MU plugin remains closed by default. See [the release procedure](../release/README.md) for the exact two-host live test window, named tester gate, and artifact promotion plan. The old `deploy_latest.sh` snapshot is obsolete and must not be run for the current candidate.
