@@ -4,6 +4,8 @@
 add_filter('body_class', function ($classes) {
     if (is_page(array('login', 'register'))) {
         $classes[] = 'astro-auth-page';
+    } elseif (function_exists('wc_get_page_id') && is_page(wc_get_page_id('myaccount'))) {
+        $classes[] = 'astro-account-page';
     }
     return $classes;
 });
