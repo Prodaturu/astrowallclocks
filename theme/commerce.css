@@ -139,3 +139,18 @@
 .astro-auth-card > h2{display:none}
 @media(max-width:760px){.inner-main .page-heading{padding:36px 0 40px}.inner-main .page-heading h1{font-size:clamp(2.35rem,10vw,3.2rem)}.inner-main .section-pad{padding-top:35px;padding-bottom:52px}.inner-main .cart-section.section-pad{padding-top:32px}.inner-main .shop-product-image{min-height:280px}.inner-main .shop-product-copy{padding:28px 24px}.astro-content-page{font-size:.95rem}.astro-content-page h2,.astro-content-page h3{margin-top:25px}}
 @media(max-width:600px){.woocommerce form.track_order .form-row{float:none;width:100%;margin:0 0 14px}.woocommerce form.track_order .form-row input{width:100%}}
+
+/* Shipping Policy: the published text, presented as a readable document. */
+.astro-shipping-page .page-heading{padding:45px 0 50px}
+.astro-shipping-page .astro-content-page{max-width:920px;padding:clamp(26px,5vw,62px);background:#fff;border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:8px;box-shadow:0 16px 38px rgba(12,23,41,.06)}
+.astro-shipping-page .astro-content-page > p:first-of-type{margin:0 0 34px;color:#455263;font-size:1.08rem;line-height:1.8}
+.astro-shipping-page .astro-content-page > p:first-of-type > br{display:none}
+.astro-shipping-page .astro-content-page > p:first-of-type > strong{display:block;margin-bottom:10px;color:#a77625;font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.astro-shipping-page .astro-content-page > p:has(> strong:first-child){margin:34px 0 13px;padding-top:27px;border-top:1px solid var(--line)}
+.astro-shipping-page .astro-content-page > p:has(> strong:first-child) > strong{display:block;color:var(--navy);font:800 clamp(1.18rem,2vw,1.45rem)/1.35 Manrope,Arial,sans-serif;letter-spacing:-.035em}
+.astro-shipping-page .astro-content-page > p:has(> strong:first-child) > strong + br{display:none}
+.astro-shipping-page .astro-content-page ul,.astro-shipping-page .astro-content-page ol{padding-left:25px}
+.astro-shipping-page .astro-content-page li{padding-left:4px;margin-bottom:9px}
+.astro-shipping-page .astro-content-page li::marker{color:#ae7d31}
+.astro-shipping-page .astro-content-page > :last-child{margin-bottom:0}
+@media(max-width:760px){.astro-shipping-page .page-heading{padding:36px 0 40px}.astro-shipping-page .astro-content-page{padding:25px 21px}.astro-shipping-page .astro-content-page > p:first-of-type{margin-bottom:25px;font-size:1rem}.astro-shipping-page .astro-content-page > p:has(> strong:first-child){margin-top:27px;padding-top:22px}}
