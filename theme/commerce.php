@@ -82,6 +82,24 @@ function astro_replace_section(string $html, string $start_marker, string $end_m
     return substr_replace($html, $replacement, $start, $end + strlen($end_marker) - $start);
 }
 
+/** Preserve Shiprocket's optional product checker in the custom product layout. */
+function astro_shiprocket_product_checker(WC_Product $item): string {
+    $settings = get_option('woocommerce_shiprocket_woocommerce_shipping_settings', []);
+    if (!function_exists('shiprocket_show_check_pincode') || empty($settings['integration_id'])) {
+        return '';
+    }
+    $previous = $GLOBALS['product'] ?? null;
+    $GLOBALS['product'] = $item;
+    ob_start();
+    try {
+        shiprocket_show_check_pincode();
+        return (string) ob_get_contents();
+    } finally {
+        ob_end_clean();
+        $GLOBALS['product'] = $previous;
+    }
+}
+
 function astro_design_html(string $html, string $page, ?WC_Product $product = null): string {
     $featured = astro_featured_product();
     $cart_count = function_exists('WC') && WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
@@ -128,6 +146,11 @@ function astro_design_html(string $html, string $page, ?WC_Product $product = nu
     }
 
     if ($page === 'product') {
+        $checker = astro_shiprocket_product_checker($product);
+        if ($checker !== '') {
+            $html = preg_replace_callback('~<form class="purchase-form".*?</form>~us',
+                fn($match) => $match[0] . '<div class="astro-delivery-check">' . $checker . '</div>', $html, 1);
+        }
         $name = esc_html($product->get_name());
         $description = esc_html(wp_strip_all_tags($product->get_short_description()));
         $html = str_replace('<h1>Astro Wall <em>Clock.</em></h1>', '<h1><em>' . $name . '</em></h1>', $html);

@@ -2,6 +2,49 @@
 
 No production deployment is authorized by this document. Staging and production retain separate databases, uploads, URLs, credentials, orders, and customers.
 
+## Current email and shipping gate
+
+The current payment strategy supersedes the older live-staging procedure below:
+staging remains dummy-only; a later private production checkout requires separate
+approval and must keep Razorpay available to ordinary customers.
+
+Production email settings have a valid sender and administrator address on a
+different domain from the shop. No active SMTP plugin or mail interception in
+the two production MU plugins was found. WooCommerce new-order HTML mail is
+enabled; customer account, reset, processing, on-hold, completed and refunded
+mail use default settings. The new theme uses native account/checkout handlers
+and does not replace email templates or triggers. Actual delivery and sender
+authentication are unverified. After approval, use one designated test inbox:
+register a synthetic customer, request/reset its password, and create one
+synthetic COD order with mail restricted to approved recipients, verifying the
+customer confirmation and merchant notification plus one status update. Inspect
+delivery headers for SPF/DKIM/DMARC and spam placement. Suppress shipping/order
+export for that synthetic order before creating it; a COD order can be imported
+by an external shipping channel even without a booking.
+
+Production Shiprocket 2.0.9 has a configured integration ID, realtime rates on,
+zone-specific rates off and fallback/flat rate 40 INR. No WooCommerce shipping
+zone rows or method rows exist; the plugin supplies its own realtime/fallback
+behavior. COD is enabled without method restrictions, including virtual items;
+this setting alone does not establish courier COD serviceability. Product 516
+has SKU and weight but not all dimensions. Preserve its current settings and
+confirm packaging dimensions in Shiprocket before fulfillment. The code now
+preserves the plugin's optional product-pincode checker. Staging does not copy
+the production integration ID and continues to block external shipping calls.
+
+No WooCommerce REST keys or stored WooCommerce webhooks were found. The shipping
+plugin contains a calculator and an admin handoff, which do not establish
+automatic HPOS order export or courier-status import. Native guest order tracking
+shows WooCommerce status; it is not evidence of AWB tracking. With approval,
+inspect the existing Shiprocket channel in its authenticated dashboard, then
+make serviceability/rate lookups only for one serviceable and one unserviceable
+test postcode, comparing prepaid/COD, weight and the 40 INR fallback. Confirm
+channel permissions, HPOS support and import status mapping without placing a
+new order or enabling auto-processing. Read an already-imported order/tracking
+record only if separately authorized; do not create shipments, AWBs or labels.
+If a synthetic import is needed, separately approve it after disabling booking
+automation. No REST keys/webhooks or production configuration are changed here.
+
 ## Build and freeze the tested code
 
 1. Commit reviewed work on `dev/local-woocommerce`. Run `python3 dev/release/build_candidate.py` with a clean tree. The script refuses a different branch, changed sources, an unreviewed Easebuzz ZIP, or overwriting a candidate.
