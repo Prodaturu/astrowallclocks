@@ -38,7 +38,26 @@ an order only when its merchant key, order ID/key, transaction ID, amount,
 status, and Easebuzz payment ID match. Unverified results leave the order
 unpaid; exhausted retries add a manual reconciliation note. These paths use
 local synthetic HTTP mocks and need staging validation before release.
-Run `dev/easebuzz/test_recovery.php` with WP-CLI like `test_local.php`.
+Run the affected account/tracking and recovery tests from the repository root:
+
+```sh
+python3 dev/tests/account_tracking.py
+docker compose -f dev/compose.yaml --profile tools run --rm -v "$PWD/dev/easebuzz/test_recovery.php:/tmp/astro-test-recovery.php:ro" cli wp eval-file /tmp/astro-test-recovery.php
+```
+
+The recovery test is repository source, not a file installed inside the gateway
+plugin. The read-only mount above supplies the actual file to WP-CLI.
+Both commands require access to the existing Colima Docker socket; the account
+test also requires access to `127.0.0.1:8088`. If an agent sandbox reports
+`permission denied while trying to connect to the docker API`, rerun with the
+approved host-access permission. Do not change socket permissions or recreate
+the database. The original fixture failure occurred before WordPress executed.
+
+On 2026-11-26, both commands passed after correcting execution permissions and
+the recovery path: 11 account/tracking checks and 49 mocked recovery checks.
+No website code change was required. A read-only comparison also confirmed
+staging still matches the frozen `d8fd7021d5cd` candidate (22 theme files and
+8 gateway files); no staging configuration or data was changed by these runs.
 
 For visual review, run `node dev/tests/visual_review.mjs` on this Mac. It saves
 desktop and 390px mobile screenshots under `/private/tmp/astro-visual-review/`
