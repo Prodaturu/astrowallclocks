@@ -14,6 +14,9 @@ update_option('woocommerce_manage_stock', 'yes');
 update_option('woocommerce_enable_shipping', 'yes');
 update_option('blog_public', '0');
 update_option('woocommerce_coming_soon', 'no');
+update_option('woocommerce_enable_myaccount_registration', 'yes');
+update_option('woocommerce_registration_generate_username', 'no');
+update_option('woocommerce_registration_generate_password', 'no');
 
 foreach ([
     'shop' => ['Shop', '', 'woocommerce_shop_page_id'],

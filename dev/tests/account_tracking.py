@@ -3,6 +3,7 @@
 import http.cookiejar
 import json
 import re
+import secrets
 import subprocess
 import urllib.parse
 import urllib.request
@@ -61,6 +62,19 @@ def nonce(body, name):
 
 
 def main():
+    registration = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+    register_page = get(registration, "/my-account/")
+    assert "woocommerce-form-register" in register_page
+    username = "astro_local_new_" + secrets.token_hex(4)
+    registered = post(registration, "/my-account/", {
+        "username": username, "email": username + "@example.test", "password": "LOCAL_ONLY_ACCOUNT_TEST",
+        "register": "Register", "woocommerce-register-nonce": nonce(register_page, "woocommerce-register-nonce"),
+        "_wp_http_referer": "/my-account/",
+    })
+    assert "woocommerce-MyAccount-navigation" in registered
+    assert username in get(registration, "/my-account/edit-account/")
+    print("PASS synthetic customer registration and account session")
+
     order = fixture()
     guest = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
     tracking = get(guest, "/track-order/")

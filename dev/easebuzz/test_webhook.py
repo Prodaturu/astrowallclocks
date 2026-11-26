@@ -108,6 +108,10 @@ def main():
         after = state(other["id"])
         assert after["status"] == expected and not after["paid"]
         print(f"PASS {status} HTTP webhook leaves synthetic order unpaid")
+    encoded = make_order()
+    special = payload(encoded, "success") | {"firstname": "Synthetic+Buyer", "productinfo": "Order 50%+gift"}
+    assert send(sign(special)) == 200 and state(encoded["id"])["paid"]
+    print("PASS encoded plus and percent fields retain valid webhook hash")
 
 
 if __name__ == "__main__":

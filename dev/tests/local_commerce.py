@@ -105,6 +105,13 @@ def main(place_order):
     assert "Astro Wall Clock LOCAL TEST" in html.unescape(request(opener, "/shop/")[1])
     assert "THE COLLECTION" in request(opener, "/shop/")[1]
     assert "product-gallery" in request(opener, "/product/astro-wall-clock/")[1]
+    home_buy = re.search(r'<a class="button button-gold" href="([^"]+add-to-cart=[^"]+)"', request(opener, "/")[1])
+    assert home_buy, "Home Buy Now link missing"
+    buy_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+    response, _ = request(buy_opener, html.unescape(home_buy.group(1)).removeprefix(BASE))
+    assert response.url.startswith(BASE + "/product/astro-wall-clock/")
+    assert cart_data(buy_opener)["items_count"] == 1
+    print("PASS homepage Buy Now lands on product and adds one item")
 
     # Prove the design reads current WooCommerce values instead of the static snapshot.
     dynamic_name = "Astro Dynamic Test Clock"

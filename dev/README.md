@@ -23,6 +23,19 @@ docker compose -f dev/compose.yaml --profile tools run --rm cli wp eval-file /va
 python3 dev/easebuzz/test_webhook.py
 ```
 
+The hardened package also corrects webhook form decoding and schedules bounded
+transaction-status lookups after successful payment initiation. A lookup pays
+an order only when its merchant key, order ID/key, transaction ID, amount,
+status, and Easebuzz payment ID match. Unverified results leave the order
+unpaid; exhausted retries add a manual reconciliation note. These paths use
+local synthetic HTTP mocks and need staging validation before release.
+Run `dev/easebuzz/test_recovery.php` with WP-CLI like `test_local.php`.
+
+For visual review, run `node dev/tests/visual_review.mjs` on this Mac. It saves
+desktop and 390px mobile screenshots under `/private/tmp/astro-visual-review/`
+and checks image loading, horizontal overflow, mobile navigation, and checkout
+with a synthetic cart item. Local account registration is enabled for testing.
+
 `dev/easebuzz/harden_plugin.py` verifies exact official 5.8.0 source hashes before patching. Its output is a local build artifact. The official ZIP and the patched build are not committed; review and rerun the patch if Easebuzz updates its plugin.
 
 To rebuild the staging candidate, download the official 5.8.0 plugin ZIP from [Easebuzz's repository](https://github.com/easebuzz/paywitheasebuzz-wordpress-woocommerce-lib), then run `python3 dev/easebuzz/build_package.py /path/to/woocommerce_easebuzz_plugin.zip`. The script checks the pinned ZIP SHA-256 and writes a Git-ignored package under `dev/easebuzz/.build/`. Staging currently runs this package with dummy values and outbound payment requests blocked; see [staging setup](staging/README.md).

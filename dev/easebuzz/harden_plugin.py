@@ -67,7 +67,13 @@ function easebuzz_response_matches_order($order, $params, $settings)
 
     gateway = target / "woocommerce-gateway-easebuzz.php"
     text = gateway.read_text()
+    text = replace_once(text, "            $redirect_url      = $this->get_redirect_url($this->redirect_page);", "            if (in_array($order->get_status(), array('pending', 'on-hold'), true)\n                && $order->get_meta('_astro_easebuzz_expected_txnid', true) !== '') {\n                astro_easebuzz_schedule_recovery($order_id, 0);\n                return $this->render_error_script(__('A previous payment attempt is being verified. Please wait before retrying.', 'woo_payeasebuzz'));\n            }\n\n            $redirect_url      = $this->get_redirect_url($this->redirect_page);")
     text = replace_once(text, "            $response = easepay_page($payment_request_parameter, $salt, $env);", "            $order->update_meta_data('_astro_easebuzz_expected_txnid', $payment_request_parameter['txnid']);\n            $order->save();\n            $response = easepay_page($payment_request_parameter, $salt, $env);")
+    text = replace_once(text, "            if ($response['status'] === 1) {", "            if ($response['status'] === 1 || $response['status'] === 'iframe') {\n                astro_easebuzz_schedule_recovery($order_id, 0);\n            }\n\n            if ($response['status'] === 1) {")
+    text = replace_once(text, "                // Error\n                $error_msg", "                // Error\n                $order->delete_meta_data('_astro_easebuzz_expected_txnid');\n                $order->save();\n                $error_msg")
+    text = replace_once(text, "                $this->log('Payment initiation failed: ' . $error_msg);", "                $this->log('Payment initiation failed for order ' . $order_id);")
+    text = replace_once(text, "                return $this->render_error_script(__('Unable to initiate Transaction', 'woo_payeasebuzz') . ' ' . $error_msg);", "                return $this->render_error_script(__('Unable to initiate Transaction', 'woo_payeasebuzz'));")
+    text = replace_once(text, "define('EASEBUZZ_SETTINGS_KEY', 'woocommerce_payeasebuzz_settings');", "define('EASEBUZZ_SETTINGS_KEY', 'woocommerce_payeasebuzz_settings');\nrequire_once __DIR__ . '/astro-recovery.php';")
     text = replace_once(text, '''                // Already handled (duplicate/replayed callback) - do not reprocess.
                 if (easebuzz_order_already_handled($order)) {
                     wp_safe_redirect($redirect_success_url);
@@ -116,6 +122,8 @@ function easebuzz_response_matches_order($order, $params, $settings)
 
     webhook = target / "update_webhook.php"
     text = webhook.read_text()
+    text = replace_once(text, "    parse_str(urldecode($body), $payload);", "    parse_str($body, $payload);")
+    text = replace_once(text, "wc_get_logger()->error('Webhook error: ' . $e->getMessage(), array('source' => 'easebuzz'));", "wc_get_logger()->error('Webhook processing error', array('source' => 'easebuzz'));")
     text = replace_once(text, "    // Only process if order is in an updatable state (shared guard).", '''    if (!easebuzz_response_matches_order($order, $payload, $settings)) {
         easebuzz_webhook_response(400, 'Payment response does not match order.');
     }
@@ -123,6 +131,7 @@ function easebuzz_response_matches_order($order, $params, $settings)
     // Only process if order is in an updatable state (shared guard).''')
     text = replace_once(text, "    if (easebuzz_order_already_handled($order)) {", "    if (easebuzz_order_already_handled($order) || $order->is_paid()) {")
     webhook.write_text(text)
+    shutil.copyfile(Path(__file__).with_name('astro-recovery.php'), target / 'astro-recovery.php')
     print("Patched reviewed Easebuzz plugin for local testing")
 
 

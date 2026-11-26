@@ -4,6 +4,7 @@
 .cart-section .woocommerce{color:var(--ink)}
 .cart-section .woocommerce-notices-wrapper{margin-bottom:22px}
 .woocommerce-message,.woocommerce-info,.woocommerce-error{border-radius:6px;padding:16px 20px 16px 48px;background:#fff;border-top-color:var(--gold);box-shadow:0 4px 20px rgba(12,23,41,.06)}
+.woocommerce-info::before{content:"ⓘ";font-family:Arial,sans-serif;color:#2582b8}
 .woocommerce a,.woocommerce .woocommerce-info a{color:#865c18}
 .woocommerce table.shop_table{border:1px solid var(--line);border-radius:8px;background:#fff;border-collapse:separate;overflow:hidden}
 .woocommerce table.shop_table th,.woocommerce table.shop_table td{padding:17px;border-color:var(--line)}
