@@ -52,7 +52,10 @@ function astro_shop_cards(): array {
     if (!function_exists('wc_get_products')) {
         return [];
     }
-    return wc_get_products(['status' => 'publish', 'limit' => -1, 'orderby' => 'menu_order', 'order' => 'ASC']);
+    $products = wc_get_products(['status' => 'publish', 'limit' => -1, 'orderby' => 'menu_order', 'order' => 'ASC']);
+    return array_values(array_filter($products, static function (WC_Product $product): bool {
+        return in_array($product->get_catalog_visibility(), ['visible', 'catalog'], true);
+    }));
 }
 
 function astro_render_shop_card(WC_Product $product): string {

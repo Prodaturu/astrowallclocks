@@ -50,7 +50,7 @@ async function tab() {
 
 try {
   await ready();
-  const pages = ['/', '/shop/', '/product/astro-wall-clock/', '/cart/', '/checkout/', '/login/', '/register/', '/my-account/', '/track-order/'];
+  const pages = ['/', '/shop/', '/product/astro-wall-clock/', '/cart/', '/checkout/', '/login/', '/register/', '/my-account/', '/track-order/', '/about/', '/contact-us/', '/blog/'];
   const results = [];
   for (const [label, width, height, mobile] of [['desktop', 1440, 900, false], ['mobile', 390, 844, true]]) {
     for (const path of pages) {
