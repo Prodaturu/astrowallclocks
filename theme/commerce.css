@@ -1,5 +1,6 @@
 /* Match WooCommerce's functional pages to the existing Ekshan design. */
 .page-heading h1{font-size:clamp(2.6rem,5vw,5rem);margin-bottom:0}
+.astro-auth-page .page-heading{padding:65px 0 70px}
 .cart-section .container{max-width:1220px}
 .cart-section .woocommerce{color:var(--ink)}
 .cart-section .woocommerce-notices-wrapper{margin-bottom:22px}
@@ -47,4 +48,4 @@
 .astro-auth-switch a{color:#865c18;font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .shop-product+.shop-product{margin-top:26px}
 .cart-section a:focus-visible,.cart-section button:focus-visible,.cart-section input:focus-visible,.cart-section select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-@media(max-width:760px){.woocommerce form.checkout .col2-set{grid-template-columns:1fr;padding:18px}.woocommerce table.shop_table th,.woocommerce table.shop_table td{padding:11px}.woocommerce .cart-collaterals .cart_totals{max-width:none;padding:18px}.woocommerce-account .woocommerce-MyAccount-navigation,.woocommerce-account .woocommerce-MyAccount-content{float:none;width:100%;margin-bottom:18px}.woocommerce-account .woocommerce-MyAccount-navigation{padding:16px 20px}.woocommerce-account .woocommerce-MyAccount-navigation ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}.woocommerce-account .woocommerce-MyAccount-navigation li{padding:8px 0}.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info .button{float:none;display:block;margin:12px 0 0;width:100%;text-align:center}.page-heading h1{font-size:2.7rem}}
+@media(max-width:760px){.woocommerce form.checkout .col2-set{grid-template-columns:1fr;padding:18px}.woocommerce table.shop_table th,.woocommerce table.shop_table td{padding:11px}.woocommerce .cart-collaterals .cart_totals{max-width:none;padding:18px}.woocommerce-account .woocommerce-MyAccount-navigation,.woocommerce-account .woocommerce-MyAccount-content{float:none;width:100%;margin-bottom:18px}.woocommerce-account .woocommerce-MyAccount-navigation{padding:16px 20px}.woocommerce-account .woocommerce-MyAccount-navigation ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}.woocommerce-account .woocommerce-MyAccount-navigation li{padding:8px 0}.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info .button{float:none;display:block;margin:12px 0 0;width:100%;text-align:center}.page-heading h1{font-size:2.7rem}.astro-auth-page .page-heading{padding:45px 0 48px}}

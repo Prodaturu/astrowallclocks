@@ -1,6 +1,13 @@
 <?php
 /** Route public account forms to WooCommerce's existing customer account. */
 
+add_filter('body_class', function ($classes) {
+    if (is_page(array('login', 'register'))) {
+        $classes[] = 'astro-auth-page';
+    }
+    return $classes;
+});
+
 function astro_account_destination_from_request(): string {
     $dashboard = wc_get_page_permalink('myaccount');
     $raw = isset($_REQUEST['redirect_to']) && is_string($_REQUEST['redirect_to'])
