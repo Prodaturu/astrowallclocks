@@ -1,12 +1,24 @@
 <?php
 /** WP-CLI regression; synthetic orders and in-process HTTP mocks only. */
-if (DB_NAME !== 'astrowallclocks_test' || get_option('siteurl') !== 'http://127.0.0.1:8088') {
-    throw new RuntimeException('Refusing a non-local store');
-}
+$local = DB_NAME === 'astrowallclocks_test' && get_option('siteurl') === 'http://127.0.0.1:8088';
+$staging = DB_NAME === 'bgt9xah2o3eo_awstage' && get_option('siteurl') === 'https://staging.astrowallclocks.com';
+if (!$local && !$staging) throw new RuntimeException('Refusing a non-test store');
+if ($staging && (!\Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled()
+    || !has_filter('pre_wp_mail'))) throw new RuntimeException('Staging safety or HPOS missing');
 require_once EASEBUZZ_PLUGIN_DIR . 'easepay-lib.php';
-$settings = array('key_id' => 'ASTRO_LOCAL_FAKE_KEY', 'key_secret' => 'ASTRO_LOCAL_FAKE_SALT', 'test_mode' => 'test');
-update_option(EASEBUZZ_SETTINGS_KEY, $settings);
-$product = wc_get_product(wc_get_product_id_by_sku('ASTRO-LOCAL-TEST'));
+$settings = $staging ? get_option(EASEBUZZ_SETTINGS_KEY, array())
+    : array('key_id' => 'ASTRO_LOCAL_FAKE_KEY', 'key_secret' => 'ASTRO_LOCAL_FAKE_SALT', 'test_mode' => 'test');
+if ($staging) {
+    if (($settings['test_mode'] ?? '') !== 'test'
+        || !str_starts_with($settings['key_id'] ?? '', 'ASTRO_STAGE_DUMMY_')
+        || !str_starts_with($settings['key_secret'] ?? '', 'ASTRO_STAGE_DUMMY_')) {
+        throw new RuntimeException('Staging requires dummy-only gateway configuration');
+    }
+} else {
+    update_option(EASEBUZZ_SETTINGS_KEY, $settings);
+}
+$product = wc_get_product(wc_get_product_id_by_sku($staging ? 'ASTRO-STAGING-EASEBUZZ-TEST' : 'ASTRO-LOCAL-TEST'));
+if (!$product) throw new RuntimeException('Synthetic product missing');
 
 function recovery_assert($ok, $message) {
     if (!$ok) throw new RuntimeException($message);

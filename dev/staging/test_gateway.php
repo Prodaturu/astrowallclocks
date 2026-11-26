@@ -15,6 +15,8 @@ if (($settings['enabled'] ?? '') !== 'yes' || ($settings['test_mode'] ?? '') !==
 }
 foreach (['https://pay.easebuzz.in/payment/initiateLink',
           'https://testpay.easebuzz.in/payment/initiateLink',
+          'https://dashboard.easebuzz.in/transaction/v2/retrieve',
+          'https://testdashboard.easebuzz.in/transaction/v2/retrieve',
           'https://apiv2.shiprocket.in/v1/external/orders/create/adhoc'] as $url) {
     if (!is_wp_error(apply_filters('pre_http_request', false, [], $url))) {
         throw new RuntimeException('Outbound service guard missing');
