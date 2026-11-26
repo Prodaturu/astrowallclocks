@@ -134,7 +134,8 @@ def main(place_order):
     assert cart_data(opener)["items_count"] == 1
     home = request(opener, "/")[1]
     assert re.search(r'<b class="cart-count" aria-hidden="true">1</b>', home)
-    assert '<a href="http://127.0.0.1:8088/my-account/">My Account</a>' in home
+    assert '<a href="http://127.0.0.1:8088/login/">Login</a>' in home
+    assert '<a href="http://127.0.0.1:8088/register/">Register</a>' in home
 
     cart_html = request(opener, "/cart/")[1]
     qty_field = re.search(r'name="(cart\[[^\"]+\]\[qty\])"', cart_html)

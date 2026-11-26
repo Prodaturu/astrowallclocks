@@ -15,6 +15,15 @@ Requirements: a running Docker-compatible engine and Docker Compose. Colima with
 
 The theme preserves the existing frontend design while its product title, price, description, stock, images, and shop cards come from WooCommerce. It disables the static demo cart. WooCommerce handles cart quantities, shipping totals, classic checkout, COD, and HPOS orders. The local test shipping rate is ₹100. Easebuzz 5.8.0 is installed locally with a reviewed hardening patch and synthetic test values. Its payment initiation is mocked; no payment or shipment API is contacted. A local-only must-use plugin suppresses outgoing mail and blocks requests to Easebuzz, Razorpay, and Shiprocket domains. No sandbox credentials are available; never place live credentials in this repository.
 
+Customer authentication uses WooCommerce's native forms at `/login/` and
+`/register/`. `/my-account/` and its order/address/detail endpoints require a
+WordPress session and send guests to login with their destination retained.
+WooCommerce's password-reset endpoint remains public. The local seed enables
+customer registration; production follows its own WooCommerce settings.
+The two forms share WooCommerce's `myaccount/form-login.php` template (version
+9.9.0) with page-specific display; compare the override whenever WooCommerce
+updates that template.
+
 Easebuzz local regression tests:
 
 ```sh

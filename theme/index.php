@@ -4,7 +4,7 @@
  * Cart, checkout, and account use native WooCommerce shortcodes.
  */
 
-if (function_exists('is_cart') && (is_cart() || is_checkout() || is_account_page())) {
+if (function_exists('is_cart') && (is_cart() || is_checkout() || is_account_page() || is_page(array('login', 'register')))) {
     get_header();
     while (have_posts()) {
         the_post();

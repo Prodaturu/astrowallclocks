@@ -50,7 +50,7 @@ async function tab() {
 
 try {
   await ready();
-  const pages = ['/', '/shop/', '/product/astro-wall-clock/', '/cart/', '/checkout/', '/my-account/', '/track-order/'];
+  const pages = ['/', '/shop/', '/product/astro-wall-clock/', '/cart/', '/checkout/', '/login/', '/register/', '/my-account/', '/track-order/'];
   const results = [];
   for (const [label, width, height, mobile] of [['desktop', 1440, 900, false], ['mobile', 390, 844, true]]) {
     for (const path of pages) {
@@ -101,6 +101,44 @@ try {
     results.push(checkout);
     session.ws.close();
   }
+  // Log in with the existing synthetic local customer for dashboard captures.
+  const customer = await tab();
+  await customer.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await customer.send('Page.navigate', { url: `${base}/login/` });
+  await new Promise(r => setTimeout(r, 1100));
+  await customer.send('Runtime.evaluate', { expression: `(() => {
+    document.querySelector('#username').value = 'astro_local_account_test';
+    document.querySelector('#password').value = 'LOCAL_ONLY_ACCOUNT_TEST';
+    document.querySelector('form.woocommerce-form-login').requestSubmit(document.querySelector('button[name=login]'));
+  })()` });
+  await new Promise(r => setTimeout(r, 1400));
+  for (const [name, path, width, height, mobile] of [
+    ['account-dashboard', '/my-account/', 1440, 900, false],
+    ['account-orders', '/my-account/orders/', 1440, 900, false],
+    ['account-dashboard', '/my-account/', 390, 844, true],
+    ['account-orders', '/my-account/orders/', 390, 844, true],
+  ]) {
+    await customer.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile });
+    await customer.send('Page.navigate', { url: base + path });
+    await new Promise(r => setTimeout(r, 1100));
+    const { result } = await customer.send('Runtime.evaluate', {
+      expression: `({url: location.href, viewport: innerWidth, pageWidth: document.documentElement.scrollWidth,
+        dashboard: !!document.querySelector('.woocommerce-MyAccount-navigation'),
+        customerName: document.querySelector('.woocommerce-MyAccount-content')?.textContent.includes('astro_local_account_test') ?? false,
+        orderRows: document.querySelectorAll('.woocommerce-orders-table__row').length})`,
+      returnByValue: true,
+    });
+    const checked = { device: mobile ? 'mobile' : 'desktop', page: name, ...result.value };
+    if (checked.url !== base + path || checked.pageWidth > width || !checked.dashboard
+        || (name === 'account-dashboard' && !checked.customerName)
+        || (name === 'account-orders' && checked.orderRows < 1)) {
+      throw new Error(`Authenticated account visual check failed: ${JSON.stringify(checked)}`);
+    }
+    const { data } = await customer.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    await writeFile(join(output, `${checked.device}-${name}.png`), Buffer.from(data, 'base64'));
+    results.push(checked);
+  }
+  customer.ws.close();
   await writeFile(join(output, 'results.json'), JSON.stringify(results, null, 2));
   for (const r of results) console.log(`${r.device} ${r.page}: viewport=${r.viewport} width=${r.pageWidth} imagesMissing=${r.missingImages?.length ?? 0} ${r.url}`);
   console.log(`Screenshots: ${output}`);

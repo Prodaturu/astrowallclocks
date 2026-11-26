@@ -23,6 +23,8 @@ foreach ([
     'cart' => ['Cart', '[woocommerce_cart]', 'woocommerce_cart_page_id'],
     'checkout' => ['Checkout', '[woocommerce_checkout]', 'woocommerce_checkout_page_id'],
     'my-account' => ['My Account', '[woocommerce_my_account]', 'woocommerce_myaccount_page_id'],
+    'login' => ['Login', '[woocommerce_my_account]', null],
+    'register' => ['Register', '[woocommerce_my_account]', null],
     'about' => ['About', '', null],
     'contact-us' => ['Contact', '', null],
     'track-order' => ['Track Order', '[woocommerce_order_tracking]', null],
