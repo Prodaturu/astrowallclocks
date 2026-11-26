@@ -59,6 +59,8 @@ $mock = function($preempt, $args, $url) use (&$called) {
     $called = true;
     astro_assert(str_starts_with($url, 'https://testpay.easebuzz.in/'), 'initiation selects sandbox endpoint');
     astro_assert(($args['sslverify'] ?? false) === true, 'initiation requires TLS verification');
+    astro_assert(($args['redirection'] ?? null) === 0, 'initiation refuses HTTP redirects');
+    astro_assert(strtoupper((string) ($args['method'] ?? '')) === 'POST', 'initiation uses POST for staging allowlist');
     astro_assert(isset($args['body']['hash']), 'initiation includes signed request');
     return ['headers' => [], 'body' => wp_json_encode(['status' => 1, 'data' => 'mock-access']), 'response' => ['code' => 200]];
 };

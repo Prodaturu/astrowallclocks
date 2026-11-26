@@ -1,0 +1,38 @@
+# Astro Wall Clocks release candidate and promotion gate
+
+No production deployment is authorized by this document. Staging and production retain separate databases, uploads, URLs, credentials, orders, and customers.
+
+## Build and freeze the tested code
+
+1. Commit reviewed work on `dev/local-woocommerce`. Run `python3 dev/release/build_candidate.py` with a clean tree. The script refuses a different branch, changed sources, an unreviewed Easebuzz ZIP, or overwriting a candidate.
+2. Keep `dist/release-candidate/<commit>/` private. `astro-rebuild.zip` contains the tracked theme and existing design source; `woocommerce_easebuzz_plugin-hardened.zip` is the reviewed official 5.8.0 plugin plus pinned hardening; `manifest.json` records both SHA-256 hashes and every theme file hash. No database, secrets, uploads, or environment settings enter either artifact.
+3. Run `python3 dev/release/verify_stage.py dist/release-candidate/<commit>` with `ASTRO_STAGE_SSH_USER`, `ASTRO_STAGE_SSH_KEY`, and `ASTRO_STAGE_KNOWN_HOSTS` set. It checks every installed staging theme and gateway file against the ZIPs without reading settings or data. Promote these **same ZIP bytes** to production; never rebuild during cutover. Verify the ZIP hashes again immediately before installation.
+4. Check that the eight public design images already present in production still match staging. Product media and order data remain in each site's own database and uploads.
+
+## Staging release gate
+
+- Keep Basic Auth, trusted HTTPS, synthetic data, HPOS, classic checkout, suppressed mail, and the staging-only outbound guard. The `ASTRO_STAGE_EASEBUZZ_LIVE_WINDOW` flag is absent by default. `astro-staging-safety.php` may allow only two exact live POST URLs, with TLS verification and no redirects, **after** the owner approves a live test and the flag is deliberately enabled. Shiprocket, Razorpay, and test-mode Easebuzz endpoints remain blocked.
+- For a live window, also set `ASTRO_STAGE_EASEBUZZ_TESTER_USER_ID` to the designated logged-in WordPress tester. Without it, the live Easebuzz gateway is hidden. The hidden ₹100 synthetic item is virtual and cannot trigger shipping. Confirm the merchant's permitted minimum amount, transaction fees, self-funded test rules, staging-domain acceptance, refund rules, and the exact tester before proceeding.
+- Preserve the existing merchant-wide webhook URL. The POST-only staging webhook and `/?wc-api=WC_Easebuzz_Gateway` routes accept unauthenticated requests but require payment signatures and order/amount/transaction matching before an order can be paid. The browser's subsequent GET remains behind Basic Auth. With the merchant webhook unchanged, a **live staging webhook delivery is unverified**; signed redirect plus authenticated transaction lookup and a scheduled recovery runner are required. The owner must approve adding the isolated five-minute cron entry in `dev/staging/README.md` before a real test.
+- Enter live merchant credentials only through staging WooCommerce administration after approval. Never write them to files, Git, logs, chat, or the release artifact. Enable the two-host live window only for the test. Make one authorized transaction; match Easebuzz's dashboard record to the staging HPOS order, exact amount, transaction ID, payment state, and one stock reduction. If the redirect is missed, check recovery against the authenticated status API. For a permitted refund, use the merchant dashboard and reconcile the staging order manually if no staging webhook arrives. Record fees and settlement treatment; a staging transaction is a real financial transaction, not a production order.
+- Close the window immediately afterward: remove the live flag and tester ID, restore dummy credentials and test mode, confirm both live hosts are blocked, and keep staging orders for audit. Do not touch the merchant-wide webhook or production.
+
+## Production cutover, only after separate approval
+
+1. **Resolve HTTPS first.** Production WordPress `home`/`siteurl` are currently `http://` and HTTP serves a page without redirecting. Obtain explicit approval for a tested HTTPS configuration and HTTP-to-HTTPS redirect before any new payment gateway goes live. Recheck callback URLs, checkout, cookies, and existing payment/shipping integrations.
+2. Take private, checksummed backups of the production WordPress files and MySQL database including HPOS tables. Record current theme/plugin activation, the four commerce page contents/IDs, SSL status, and WooCommerce/gateway settings without exposing credentials. Verify backup restore instructions and available disk before modifying production.
+3. Verify candidate ZIP hashes and installed staging file hashes. Install `astro-rebuild.zip`; configure the **production** featured product ID 516. Preserve product media, customer accounts, historical orders, stock, Razorpay, COD, and Shiprocket. Create `/login/` and `/register/` with native account shortcodes. Preserve the existing Cart/Checkout page IDs and slugs while switching their blocks to classic WooCommerce shortcodes required by the tested flow. Keep Easebuzz installed but disabled, with no live credentials until approval.
+4. Activate the theme during an approved cutover window. Smoke-test public URLs, SEO redirects, HTTPS, product price, cart, shipping/tax totals, classic checkout, Login/Register/My Account, order history, tracking, COD, error logs, and HPOS using controlled synthetic checks. Do not use production customer data for testing or make a real payment without approval.
+5. Only after the client approves, restrict Easebuzz to a named tester, enter live credentials in production administration, and complete the client's real purchase. Verify the Easebuzz dashboard, WooCommerce order, callback/recovery, stock, and shipping handoff before opening the gateway to other customers. Keep Razorpay/COD available until the cutover is accepted.
+
+## Rollback
+
+If theme/checkout fails, disable Easebuzz, restore the prior theme and the backed-up Cart/Checkout/Login/Register page content and settings. If Easebuzz alone fails, disable it and retain Razorpay/COD. **Never import an older full database over new production orders.** Use the database snapshot only for selective recovery and reconcile any orders created during the release window individually.
+
+## Known parity limits
+
+- Production still uses the old Woostify/Elementor theme; staging runs the release theme by design. Production Cart/Checkout use blocks, and `/login/` and `/register/` pages are absent. These are controlled production cutover changes, not data migrations.
+- Razorpay code version is copied to staging but remains inactive: its activation hook sends live telemetry through a direct SDK request outside the staging WordPress HTTP guard. This interaction is not yet parity-tested. Production Razorpay remains active and unchanged.
+- Production Shiprocket real-time rates use live serviceability API/account settings. Staging has the same Shiprocket 2.0.9 code active without production credentials; the API is blocked. A ₹40 synthetic flat rate mirrors production's configured fallback, not live courier quotes or booking.
+- Production site URL is HTTP and lacks an HTTP-to-HTTPS redirect. Production WP-Cron currently differs from staging's manually tested runner; the account has zero cron entries. The five-minute entry awaits explicit approval.
+- Easebuzz has not confirmed live payments from the staging domain, merchant-funded verification, minimum/fees, refund handling, or the live Transaction V2 response shape. A production launch remains blocked until these are resolved.

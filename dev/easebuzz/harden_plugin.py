@@ -63,6 +63,8 @@ function easebuzz_response_matches_order($order, $params, $settings)
     text = replace_once(text, anchor, guard + anchor)
     text = replace_once(text, "return $order && in_array($order->get_status(), array('processing', 'completed'), true);", "return $order && in_array($order->get_status(), array('processing', 'completed', 'refunded'), true);")
     text = replace_once(text, "    $status = strtolower((string) $status);\n    $suffix", "    if ($order->get_status() === 'refunded') {\n        return array('authorised' => false, 'state' => 'already_refunded', 'message' => 'Order already refunded.');\n    }\n    if ($order->is_paid()) {\n        return array('authorised' => true, 'state' => 'already_paid', 'message' => 'Order already paid.');\n    }\n    $status = strtolower((string) $status);\n    $suffix")
+    # Never forward a signed payment-initiation POST to a different host.
+    text = replace_once(text, "            'sslverify' => true,\n", "            'sslverify' => true,\n            'redirection' => 0,\n")
     lib.write_text(text)
 
     gateway = target / "woocommerce-gateway-easebuzz.php"
